@@ -1,0 +1,4 @@
+photobooth
+==========
+
+Photobooth software

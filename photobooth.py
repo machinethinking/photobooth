@@ -6,12 +6,12 @@ from random import choice
 
 class Photobooth(object):
 
-    def __init__(self):
+    def __init__(self, loop_length):
         self.new_pictures = []
         self.pics_from_camera = '0_pics_from_camera'
         self.archive_dir = '1_archive'
         self.production_dir = '2_production'
-        self.loop_length = 5
+        self.loop_length = loop_length
         self.debug = 1
 
     def get_new_pictures(self):
@@ -82,10 +82,10 @@ class Photobooth(object):
                 os.mkdir(dir)
 
 
-def main(sleep_time):
+def main(sleep_time, loop_length):
 
     logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-    p = Photobooth()
+    p = Photobooth(loop_length)
     p.verify_directories()
 
     while(True):
@@ -106,6 +106,7 @@ if __name__ == "__main__":
     # sleep_time in seconds
     # 6 minutes = 360
     sleep_time = 30
-    main(sleep_time)
+    loop_length = 5
+    main(sleep_time, loop_length)
 
 

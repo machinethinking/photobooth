@@ -103,7 +103,9 @@ def main(sleep_time):
 
 if __name__ == "__main__":
 
-    sleep_time = 60
+    # sleep_time in seconds
+    # 6 minutes = 360
+    sleep_time = 30
     main(sleep_time)
 
 

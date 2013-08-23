@@ -1,4 +1,6 @@
+import logging
 import os
+import sys
 import time
 from random import choice
 
@@ -19,9 +21,8 @@ class Photobooth(object):
                 if ".tmp_" in file:
                     continue
                 self.new_pictures.append(file)
-        if self.debug:
-            print "new pictures"
-            print self.new_pictures
+        logging.debug("new pictures")
+        logging.debug(self.new_pictures)
 
     def limit_new_pictures(self):
         '''
@@ -45,7 +46,7 @@ class Photobooth(object):
         '''
         if len(self.new_pictures) < self.loop_length:
             num_photos_to_get = self.loop_length - len(self.new_pictures)
-            print num_photos_to_get
+            logging.debug("num_photos_to_get:" , num_photos_to_get)
             archive_photos = []
             random_photos = []
             for root, dirs, files in os.walk(self.archive_dir):
@@ -80,23 +81,29 @@ class Photobooth(object):
             if not os.path.isdir(dir):
                 os.mkdir(dir)
 
-if __name__ == "__main__":
 
+def main(sleep_time):
+
+    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
     p = Photobooth()
     p.verify_directories()
 
     while(True):
         p.get_new_pictures()
         if len(p.new_pictures) == 0:
-            if p.debug:
-                print "No new photographs"
+            logging.debug("No new photographs")
             time.sleep(10)
             continue
         p.limit_new_pictures()
         p.move_to_archive()
         p.move_to_production()
         p.remove_new_photos()
-        time.sleep(10)
+        time.sleep(sleep_time)
 
+
+if __name__ == "__main__":
+
+    sleep_time = 60
+    main(sleep_time)
 
 

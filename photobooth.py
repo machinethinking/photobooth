@@ -30,9 +30,9 @@ class Photobooth(object):
         '''
         self.new_pictures = self.new_pictures[:self.loop_length]
 
-    def move_to_archive(self):
+    def link_to_archive(self):
         '''
-        move self.new_pictures into the archive
+        link self.new_pictures into the archive
         '''
         for file in self.new_pictures:
             try:
@@ -40,9 +40,9 @@ class Photobooth(object):
             except:
                 pass
 
-    def move_to_production(self):
+    def link_to_production(self):
         '''
-        move files into production directory
+        link files into production directory
         '''
         if len(self.new_pictures) < self.loop_length:
             num_photos_to_get = self.loop_length - len(self.new_pictures)
@@ -50,6 +50,9 @@ class Photobooth(object):
             archive_photos = []
             random_photos = []
             for root, dirs, files in os.walk(self.archive_dir):
+                if len(files) < num_photos_to_get:
+                    print "not enough photos!"
+                    sys.exit(1)
                 for file in files:
                     archive_photos.append(file)
             for x in range(num_photos_to_get):
@@ -69,6 +72,10 @@ class Photobooth(object):
             os.link(self.pics_from_camera + "/" + file, self.production_dir + "/" + "00" + str(num) + ".jpg")
 
     def remove_new_photos(self):
+        '''
+        The new files should be in the archive, so
+        remove them from new photos dir
+        '''
         for file in self.new_pictures:
             os.unlink(self.pics_from_camera + "/" + file)
 
@@ -92,11 +99,13 @@ def main(sleep_time, loop_length):
         p.get_new_pictures()
         if len(p.new_pictures) == 0:
             logging.debug("No new photographs")
+            # should grab different photos from archive
             time.sleep(10)
             continue
+        # need to gather files from archive before moving there!
         p.limit_new_pictures()
-        p.move_to_archive()
-        p.move_to_production()
+        p.link_to_archive()
+        p.link_to_production()
         p.remove_new_photos()
         time.sleep(sleep_time)
 

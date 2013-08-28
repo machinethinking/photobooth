@@ -2,8 +2,8 @@ photobooth
 ==========
 
 This photobooth software was designed to be used in a social setting. In batches, photographs taken 
-are displayed in loop with a delay. When there are not enough new photographs to refill the
-loop, previously taken photographs are randomly selected to fill the gap.
+are displayed in loop with a delay on, presumably, an external monitor. 
+When there are not enough new photographs to refill the loop, previously taken photographs are randomly selected to fill the gap.
 
 Requirements:
 A camera connected via (probably) USB.

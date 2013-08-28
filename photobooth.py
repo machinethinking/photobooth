@@ -78,21 +78,30 @@ class Photobooth(object):
         '''
         link files into production directory
         '''
-        for x in range(num_photos_to_get):
-            random_photos.append(choice(archive_photos))
-        for file in random_photos:
-            os.link(self.archive_dir + "/" + file, self.production_dir + "/" + file)
+        self.counter = 1
+        if self.new_pictures:
+            self.link_photos(self.new_pictures, self.pics_from_camera)
 
-        for num, file in enumerate(self.new_pictures):
+        if self.archive_photos:
+            self.link_photos(self.archive_photos, self.archive_dir)
+
+        if self.stock_photos:
+            self.link_photos(self.stock_photos, self.stock_dir)
+
+
+    def link_photos(self, photos, dir):
+
+        for photo in photos:
             '''
             The old files should exist in the production directory.
             Remove them and replace with new ones.
             Hopefully this never causes some terrbie race condition.
             xbmc seems to tolerate it.
             '''
-            if os.path.exists(self.production_dir + "/" + "00" + str(num) + ".jpg"):
-                    os.unlink(self.production_dir + "/" + "00" + str(num) + ".jpg")
-            os.link(self.pics_from_camera + "/" + file, self.production_dir + "/" + "00" + str(num) + ".jpg")
+            if os.path.exists(self.production_dir + "/" + "00" + str(self.counter) + ".jpg"):
+                    os.unlink(self.production_dir + "/" + "00" + str(self.counter) + ".jpg")
+            os.link(dir + "/" + photo, self.production_dir + "/" + "00" + str(self.counter) + ".jpg")
+            self.counter += 1
 
     def remove_new_photos(self):
         '''
@@ -104,7 +113,7 @@ class Photobooth(object):
 
     def verify_directories(self):
         '''
-        Will not work properly if not invoked from same directory
+        Will not work as intended if not invoked from same directory
         as script
         '''
         for dir in [self.pics_from_camera, self.archive_dir, self.production_dir]:
@@ -126,9 +135,9 @@ def main(sleep_time, loop_length):
         print "new ", p.new_pictures
         print "archive ", p.archive_photos
         print "stock ", p.stock_photos
-        sys.exit(1)
         p.link_to_archive()
         p.link_to_production()
+        sys.exit(1)
         p.remove_new_photos()
         time.sleep(sleep_time)
 

@@ -8,9 +8,12 @@ class Photobooth(object):
 
     def __init__(self, loop_length):
         self.new_pictures = []
+        self.archive_photos = []
+        self.stock_photos = []
         self.pics_from_camera = '0_pics_from_camera'
         self.archive_dir = '1_archive'
         self.production_dir = '2_production'
+        self.stock_dir = "stock_photographs"
         self.loop_length = loop_length
         self.debug = 1
 
@@ -40,25 +43,45 @@ class Photobooth(object):
             except:
                 pass
 
+
+    def get_archive_photos(self):
+        '''
+        this should be generalized
+        '''
+        self.archive_photos = []
+        if len(self.new_pictures) < self.loop_length:
+            num_photos_to_get = self.loop_length - len(self.new_pictures)
+            for root, dirs, files in os.walk(self.archive_dir):
+                for x in range(num_photos_to_get):
+                    try:
+                        photograph = choice(files)
+                    except:
+                        continue
+                    if photograph not in self.archive_photos:
+                        self.archive_photos.append(photograph)
+
+    def get_stock_photos(self):
+        '''
+        this should be generalized. see above
+        '''
+        self.stock_photos = []
+        if (len(self.new_pictures) + len(self.archive_photos)) < self.loop_length:
+            num_photos_to_get = self.loop_length - (len(self.new_pictures) + len(self.archive_photos))
+            for root, dirs, files in os.walk(self.stock_dir):
+                for x in range(num_photos_to_get):
+                    photograph = choice(files)
+                    if photograph not in self.archive_photos:
+                        self.stock_photos.append(photograph)
+
+
     def link_to_production(self):
         '''
         link files into production directory
         '''
-        if len(self.new_pictures) < self.loop_length:
-            num_photos_to_get = self.loop_length - len(self.new_pictures)
-            logging.debug("num_photos_to_get:" , num_photos_to_get)
-            archive_photos = []
-            random_photos = []
-            for root, dirs, files in os.walk(self.archive_dir):
-                if len(files) < num_photos_to_get:
-                    print "not enough photos!"
-                    sys.exit(1)
-                for file in files:
-                    archive_photos.append(file)
-            for x in range(num_photos_to_get):
-                random_photos.append(choice(archive_photos))
-            for file in random_photos:
-                os.link(self.archive_dir + "/" + file, self.production_dir + "/" + file)
+        for x in range(num_photos_to_get):
+            random_photos.append(choice(archive_photos))
+        for file in random_photos:
+            os.link(self.archive_dir + "/" + file, self.production_dir + "/" + file)
 
         for num, file in enumerate(self.new_pictures):
             '''
@@ -97,13 +120,13 @@ def main(sleep_time, loop_length):
 
     while(True):
         p.get_new_pictures()
-        if len(p.new_pictures) == 0:
-            logging.debug("No new photographs")
-            # should grab different photos from archive
-            time.sleep(10)
-            continue
-        # need to gather files from archive before moving there!
         p.limit_new_pictures()
+        p.get_archive_photos()
+        p.get_stock_photos()
+        print "new ", p.new_pictures
+        print "archive ", p.archive_photos
+        print "stock ", p.stock_photos
+        sys.exit(1)
         p.link_to_archive()
         p.link_to_production()
         p.remove_new_photos()
@@ -115,7 +138,7 @@ if __name__ == "__main__":
     # sleep_time in seconds
     # 6 minutes = 360
     sleep_time = 30
-    loop_length = 5
+    loop_length = 10
     main(sleep_time, loop_length)
 
 

@@ -24,14 +24,11 @@ class Photobooth(object):
                 if ".tmp_" in file:
                     continue
                 self.new_pictures.append(file)
+
+        # limit new_pictures to the loop_length
+        self.new_pictures = self.new_pictures[:self.loop_length]
         logging.debug("new pictures")
         logging.debug(self.new_pictures)
-
-    def limit_new_pictures(self):
-        '''
-        limit number of new photos to length of self.loop_length
-        '''
-        self.new_pictures = self.new_pictures[:self.loop_length]
 
     def link_to_archive(self):
         '''
@@ -51,6 +48,7 @@ class Photobooth(object):
         self.archive_photos = []
         if len(self.new_pictures) < self.loop_length:
             num_photos_to_get = self.loop_length - len(self.new_pictures)
+            logging.debug("archive photos needed:" + str(num_photos_to_get))
             for root, dirs, files in os.walk(self.archive_dir):
                 for x in range(num_photos_to_get):
                     try:
@@ -59,6 +57,7 @@ class Photobooth(object):
                         continue
                     if photograph not in self.archive_photos:
                         self.archive_photos.append(photograph)
+            logging.debug("archive photos got:" + str(len(self.archive_photos)))
 
     def get_stock_photos(self):
         '''
@@ -67,12 +66,14 @@ class Photobooth(object):
         self.stock_photos = []
         if (len(self.new_pictures) + len(self.archive_photos)) < self.loop_length:
             num_photos_to_get = self.loop_length - (len(self.new_pictures) + len(self.archive_photos))
+            logging.debug("stock photos needed:" + str(num_photos_to_get))
             for root, dirs, files in os.walk(self.stock_dir):
-                for x in range(num_photos_to_get):
+                while len(self.stock_photos) < num_photos_to_get:
                     photograph = choice(files)
                     if photograph not in self.archive_photos:
                         self.stock_photos.append(photograph)
 
+            logging.debug("stock photos got:" + str(len(self.stock_photos)))
 
     def link_to_production(self):
         '''
@@ -99,7 +100,6 @@ class Photobooth(object):
             xbmc seems to tolerate it.
             '''
             filename = "%03d" % (self.counter,)
-            print filename
             if os.path.exists(self.production_dir + "/" + str(filename) + ".jpg"):
                     os.unlink(self.production_dir + "/" + str(filename) + ".jpg")
             os.link(dir + "/" + photo, self.production_dir + "/" + str(filename) + ".jpg")
@@ -131,13 +131,12 @@ def main(sleep_time, loop_length):
 
     while(True):
         p.get_new_pictures()
-        p.limit_new_pictures()
         p.get_archive_photos()
         p.get_stock_photos()
-        print "new ", p.new_pictures
-        print "archive ", p.archive_photos
-        print "stock ", p.stock_photos
-        print len(p.new_pictures) + len(p.archive_photos) + len(p.stock_photos)
+        #print "new ", p.new_pictures
+        #print "archive ", p.archive_photos
+        #print "stock ", p.stock_photos
+        logging.debug("total new photos:" +  str(len(p.new_pictures) + len(p.archive_photos) + len(p.stock_photos)))
         p.link_to_archive()
         p.link_to_production()
         sys.exit(1)

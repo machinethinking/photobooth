@@ -98,9 +98,11 @@ class Photobooth(object):
             Hopefully this never causes some terrbie race condition.
             xbmc seems to tolerate it.
             '''
-            if os.path.exists(self.production_dir + "/" + "00" + str(self.counter) + ".jpg"):
-                    os.unlink(self.production_dir + "/" + "00" + str(self.counter) + ".jpg")
-            os.link(dir + "/" + photo, self.production_dir + "/" + "00" + str(self.counter) + ".jpg")
+            filename = "%03d" % (self.counter,)
+            print filename
+            if os.path.exists(self.production_dir + "/" + str(filename) + ".jpg"):
+                    os.unlink(self.production_dir + "/" + str(filename) + ".jpg")
+            os.link(dir + "/" + photo, self.production_dir + "/" + str(filename) + ".jpg")
             self.counter += 1
 
     def remove_new_photos(self):
@@ -135,6 +137,7 @@ def main(sleep_time, loop_length):
         print "new ", p.new_pictures
         print "archive ", p.archive_photos
         print "stock ", p.stock_photos
+        print len(p.new_pictures) + len(p.archive_photos) + len(p.stock_photos)
         p.link_to_archive()
         p.link_to_production()
         sys.exit(1)

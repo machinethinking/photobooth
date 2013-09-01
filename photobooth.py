@@ -139,7 +139,6 @@ def main(sleep_time, loop_length):
         logging.debug("total new photos:" +  str(len(p.new_pictures) + len(p.archive_photos) + len(p.stock_photos)))
         p.link_to_archive()
         p.link_to_production()
-        sys.exit(1)
         p.remove_new_photos()
         time.sleep(sleep_time)
 

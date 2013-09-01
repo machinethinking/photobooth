@@ -3,7 +3,7 @@ import os
 import random
 import sys
 import time
-from random import choice
+from random import choice, sample
 
 class Photobooth(object):
 
@@ -52,9 +52,9 @@ class Photobooth(object):
             logging.debug("archive photos needed:" + str(num_photos_to_get))
             for root, dirs, files in os.walk(self.archive_dir):
                 try:
-                    self.archive_photos = random.sample(files, num_photos_to_get)
+                    self.archive_photos = sample(files, num_photos_to_get)
                 except:
-                    self.archive_photos = random.sample(file, len(files))
+                    self.archive_photos = sample(file, len(files))
             logging.debug("archive photos got:" + str(len(self.archive_photos)))
 
     def get_stock_photos(self):

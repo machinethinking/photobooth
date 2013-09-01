@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import sys
 import time
 from random import choice
@@ -50,13 +51,10 @@ class Photobooth(object):
             num_photos_to_get = self.loop_length - len(self.new_pictures)
             logging.debug("archive photos needed:" + str(num_photos_to_get))
             for root, dirs, files in os.walk(self.archive_dir):
-                for x in range(num_photos_to_get):
-                    try:
-                        photograph = choice(files)
-                    except:
-                        continue
-                    if photograph not in self.archive_photos:
-                        self.archive_photos.append(photograph)
+                try:
+                    self.archive_photos = random.sample(files, num_photos_to_get)
+                except:
+                    self.archive_photos = random.sample(file, len(files))
             logging.debug("archive photos got:" + str(len(self.archive_photos)))
 
     def get_stock_photos(self):
